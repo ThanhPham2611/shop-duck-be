@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Inject, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Post } from '@nestjs/common';
 import {
   WARE_HOUSE_INTERATOR,
   WarehouseUseCase,
@@ -10,13 +10,19 @@ import {
   UpdateProductDto,
 } from './dto/warehouse.dto';
 import { ResponseMessage } from 'src/utils/response';
+import { Warehouse } from 'src/db/schemas/warehouse.schema';
 
 @Controller(`api/${apiVersion}/warehouse`)
 export class WarehouseController {
   constructor(
     @Inject(WARE_HOUSE_INTERATOR)
     private readonly warehouseUseCase: WarehouseUseCase,
-  ) {}
+  ) { }
+
+  @Get()
+  async getProduct(): Promise<Warehouse[]> {
+    return await this.warehouseUseCase.getProduct()
+  }
 
   @Post('create')
   async createProduct(@Body() req: CreateProductDto): Promise<ResponseMessage> {

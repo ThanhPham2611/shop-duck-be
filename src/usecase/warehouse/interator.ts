@@ -20,6 +20,11 @@ export class WarehouseInterator implements WarehouseUseCase {
     private importHistoryModel: mongoose.Model<Import_History>,
   ) {}
 
+  async getProduct(): Promise<Warehouse[]> {
+    const response = await this.warehouseModel.find();
+    return response
+  }
+
   async updateProduct(params: UpdateProductDto): Promise<ResponseMessage> {
     try {
       const { importAmount, importPrice, price, productName, id } = params;
