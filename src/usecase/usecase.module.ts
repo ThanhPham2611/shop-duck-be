@@ -7,6 +7,8 @@ import { WARE_HOUSE_INTERATOR } from './warehouse/usecase';
 import { WarehouseInterator } from './warehouse/interator';
 import { WarehouseSchema } from 'src/db/schemas/warehouse.schema';
 import { ImportHistorySchema } from 'src/db/schemas/import-history.schema';
+import { IMPORT_HISTORY_INTERATOR } from './import-history/usecase';
+import { ImportHistoryInterator } from './import-history/interator';
 
 @Module({
   imports: [
@@ -27,7 +29,11 @@ import { ImportHistorySchema } from 'src/db/schemas/import-history.schema';
       provide: WARE_HOUSE_INTERATOR,
       useClass: WarehouseInterator,
     },
+    {
+      provide: IMPORT_HISTORY_INTERATOR,
+      useClass: ImportHistoryInterator,
+    },
   ],
-  exports: [AUTH_INTERATOR, WARE_HOUSE_INTERATOR],
+  exports: [AUTH_INTERATOR, WARE_HOUSE_INTERATOR, IMPORT_HISTORY_INTERATOR],
 })
-export class UseCaseModule {}
+export class UseCaseModule { }
