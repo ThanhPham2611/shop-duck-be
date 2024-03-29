@@ -11,6 +11,9 @@ export class Sell_Product {
   sellAmount: number;
 
   @Prop()
+  sellDate: Date;
+
+  @Prop()
   importPrice: number;
 
   @Prop()

@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 import { CreateSellProductDto } from 'src/interface/controller/api/dto/sell-product.dto';
 import { ResponseMessage } from 'src/utils/response';
 import { Warehouse } from 'src/db/schemas/warehouse.schema';
+import moment from 'moment';
 
 @Injectable()
 export class SellProductInterator implements SellProductUseCase {
@@ -28,7 +29,16 @@ export class SellProductInterator implements SellProductUseCase {
       const newParams = {
         ...params,
         importPrice: infoWareHouse.importPrice,
-        price: infoWareHouse.price
+        price: infoWareHouse.price,
+        sellDate: moment(params.sellDate).format()
+      }
+      const existProduct = await this.sellProductModel.findOne({ productName: params.productName, sellDate: params.sellDate })
+      if (existProduct) {
+        await this.sellProductModel.findOneAndUpdate({ _id: existProduct._id }, { ...newParams, sellAmount: existProduct.sellAmount + params.sellAmount })
+        await this.warehouseModel.findOneAndUpdate({ productName: params.productName }, { quantity: Number(infoWareHouse.quantity - params.sellAmount) })
+        return {
+          message: 'Mua thành công'
+        }
       }
       await this.sellProductModel.create(newParams)
       await this.warehouseModel.findOneAndUpdate({ productName: params.productName }, { quantity: Number(infoWareHouse.quantity - params.sellAmount) })
@@ -37,9 +47,7 @@ export class SellProductInterator implements SellProductUseCase {
       }
     } catch (err) {
       console.log(err)
-      return {
-        message: err.message
-      }
+      throw new BadRequestException(err.message)
     }
   }
 }

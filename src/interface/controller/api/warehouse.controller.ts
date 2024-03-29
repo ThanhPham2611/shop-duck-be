@@ -26,10 +26,7 @@ export class WarehouseController {
 
   @Post('create')
   async createProduct(@Body() req: CreateProductDto): Promise<ResponseMessage> {
-    await this.warehouseUseCase.createProduct(req);
-    return {
-      message: 'Thêm sản phẩm thành công',
-    };
+    return await this.warehouseUseCase.createProduct(req);
   }
 
   @Post('update')

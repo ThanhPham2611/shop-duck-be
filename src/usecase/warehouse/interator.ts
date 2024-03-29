@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadGatewayException, BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 
@@ -11,6 +11,7 @@ import {
 } from 'src/interface/controller/api/dto/warehouse.dto';
 import { ResponseMessage } from 'src/utils/response';
 import { WarehouseUseCase } from './usecase';
+import moment from 'moment';
 
 @Injectable()
 export class WarehouseInterator implements WarehouseUseCase {
@@ -19,7 +20,7 @@ export class WarehouseInterator implements WarehouseUseCase {
     private warehouseModel: mongoose.Model<Warehouse>,
     @InjectModel(Import_History.name)
     private importHistoryModel: mongoose.Model<Import_History>,
-  ) {}
+  ) { }
 
   async getProduct(): Promise<Warehouse[]> {
     const response = await this.warehouseModel.find();
@@ -28,7 +29,7 @@ export class WarehouseInterator implements WarehouseUseCase {
 
   async updateProduct(params: UpdateProductDto): Promise<ResponseMessage> {
     try {
-      const { importAmount, importPrice, price, productName, id } = params;
+      const { importAmount, importPrice, price, productName, id, importDate } = params;
       const info = await this.warehouseModel.findOne({ _id: id });
       await this.warehouseModel.findByIdAndUpdate(
         { _id: id },
@@ -38,11 +39,13 @@ export class WarehouseInterator implements WarehouseUseCase {
           quantity: Number(importAmount + info.quantity),
           price,
           productName,
+          importDate: moment(importDate).format()
         },
       );
       await this.importHistoryModel.create({
         importAmount,
         productName,
+        importPrice: Number(importAmount * importPrice)
       });
       return {
         message: 'Cập nhật thành công',
@@ -55,7 +58,14 @@ export class WarehouseInterator implements WarehouseUseCase {
 
   async createProduct(params: CreateProductDto): Promise<ResponseMessage> {
     try {
-      const { importAmount, importPrice, price, productName } = params;
+      const { importAmount, importPrice, price, productName, importDate } = params;
+      const infoWarehouse = await this.warehouseModel.findOne({ productName });
+      if (infoWarehouse) {
+        throw new ConflictException('Tên mặt hàng bị trùng')
+      }
+      if (importPrice > price) {
+        throw new BadGatewayException('Giá nhập cao hơn giá bán')
+      }
       //save to db
       await this.warehouseModel.create({
         importPrice,
@@ -63,17 +73,20 @@ export class WarehouseInterator implements WarehouseUseCase {
         productName,
         importAmount,
         quantity: importAmount,
+        importDate: moment(importDate).format()
       });
       await this.importHistoryModel.create({
         importAmount,
         productName,
+        importPrice: Number(importAmount * importPrice),
+        importDate: moment(importDate).format()
       });
       return {
-        message: 'success',
+        message: 'Thêm sản phẩm thành công',
       };
     } catch (err) {
       console.log(err);
-      throw new NotFoundException();
+      throw new BadRequestException(err.message)
     }
   }
 

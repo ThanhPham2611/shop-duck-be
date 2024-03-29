@@ -1,4 +1,5 @@
-import { Controller, Get, Inject, Post } from '@nestjs/common';
+import { Controller, Get, Inject, Query } from '@nestjs/common';
+import moment from 'moment';
 import { ResponseDataDashboard } from 'src/usecase/dashboard/interator';
 import { DASHBOARD_INTERATOR, DashboardUseCase } from 'src/usecase/dashboard/usecase';
 import { apiVersion } from 'src/utils/verison';
@@ -11,7 +12,9 @@ export class DashboardController {
   ) { }
 
   @Get()
-  async getDataDashboard(): Promise<ResponseDataDashboard> {
-    return await this.dashboardUseCase.getData()
+  async getDataDashboard(
+    @Query() query?: { startDate: string, endDate: string }
+  ): Promise<ResponseDataDashboard> {
+    return await this.dashboardUseCase.getData(query.startDate, query.endDate)
   }
 }

@@ -9,6 +9,12 @@ export class Import_History {
 
   @Prop()
   importAmount: number;
+
+  @Prop()
+  importPrice: number;
+
+  @Prop()
+  importDate: Date;
 }
 
 export const ImportHistorySchema = SchemaFactory.createForClass(Import_History);

@@ -16,27 +16,15 @@ export class CreateProductDto {
   @IsNumber()
   @IsNotEmpty()
   price: number;
-}
-
-export class UpdateProductDto {
-  @IsNotEmpty()
-  id: string;
 
   @IsString()
   @IsNotEmpty()
-  productName: string;
+  importDate: string;
+}
 
-  @IsNumber()
+export class UpdateProductDto extends CreateProductDto {
   @IsNotEmpty()
-  importAmount: number;
-
-  @IsNumber()
-  @IsNotEmpty()
-  importPrice: number;
-
-  @IsNumber()
-  @IsNotEmpty()
-  price: number;
+  id: string;
 }
 
 export class DeleteProductDto {

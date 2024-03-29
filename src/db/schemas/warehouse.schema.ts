@@ -17,6 +17,9 @@ export class Warehouse {
   importPrice: number;
 
   @Prop()
+  importDate: Date;
+
+  @Prop()
   price: number;
 
   @Prop()
